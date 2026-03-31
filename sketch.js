@@ -8,14 +8,14 @@ let ducksHit = 0;
 let ducksMissed = 0;
 
 let shotsFired = 0;
-let shotsLeft = 3;        // 3 shots for current duck
+let shotsLeft = 3;  
 let roundOver = false;
 let roundResultTimer = 0;
 
 let hitMessageTimer = 0;
 let missMessageTimer = 0;
 
-let gameState = "intro"; // intro, dogIntro, playing, gameOver
+let gameState = "intro"; 
 let stateTimer = 0;
 
 let perfectRound = false;
@@ -209,48 +209,48 @@ function drawDog() {
 
   noStroke();
 
-  // BODY (bigger + longer)
+  //  body (bigger + longer)
   fill(142, 92, 50);
   rect(-30, -12, 60, 24);
 
-  // 🤍 SNOUT (bigger white face)
+  // snout (bigger white face)
   fill(255);
   rect(-45, -18, 28, 20);
 
-  // HEAD top
+  // head top
   fill(163, 110, 62);
   rect(-45, -26, 28, 10);
 
-  // 🐶 EARS (bigger + floppy)
+  // ears (bigger + floppy)
   fill(50, 30, 20);
   rect(-47, -30, 8, 16);
   rect(-27, -30, 8, 16);
 
-  // nOSE (black)
+  // nose
   fill(0);
   rect(-47, -12, 6, 4);
 
-  // 👁️ EYES
+  // eyes
   fill(0);
   rect(-34, -14, 3, 3);
   rect(-25, -14, 3, 3);
 
-  // 🐾 LEGS (slightly chunkier)
+  //  legs 
   fill(142, 92, 50);
   rect(-18, 12, 8, 14);
   rect(-2, 12, 8, 14);
   rect(14, 10, 8, 16);
 
-  // 🐕 TAIL
+  // tail
   fill(142, 92, 50);
   rect(30, -6, 12, 6);
 
-  // 🧠 sniff text stays
+  // sniff text
   if (dog.phase === "sniff") {
     fill(255);
     textAlign(CENTER, CENTER);
     textSize(14);
-    text("sniff...", 0, -42);
+    text("sniffing around...", 0, -42);
   }
 
   pop();
