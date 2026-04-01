@@ -272,10 +272,15 @@ function drawDog() {
 
   // sniff text
   if (dog.phase === "sniff") {
+    push();
+
+    scale(-1, 1);
     fill(255);
     textAlign(CENTER, CENTER);
     textSize(14);
     text("sniffing around...", 0, -42);
+
+    pop();
   }
 
   pop();
@@ -431,7 +436,7 @@ function updateDuck() {
 
     if (keyIsDown(67)) { // C key
       isCooking = true;
-      cookingProgress += 4.5;
+      cookingProgress += 5.5;
       cookingProgress = constrain(cookingProgress, 0, 100);
     } else {
       isCooking = false;
