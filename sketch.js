@@ -34,6 +34,8 @@ let duckSpawnTime  = 0;
 let firstShotFired = false;
 let firstShotTimes = [];
 let survivalTimes  = [];
+let shotTimestamps = [];
+let allShotGaps    = [];
 let allRounds = [];
 let playNum   = 0;
 
@@ -148,6 +150,8 @@ function setupIntro() {
   firstShotFired = false;
   firstShotTimes = [];
   survivalTimes  = [];
+  shotTimestamps = [];
+  allShotGaps    = [];
 
   dog = {
     x: -80,
@@ -333,6 +337,13 @@ function drawDog() {
 }
 
 function resetDuck() {
+  if (duckSpawnTime > 0) {
+    for (let i = 1; i < shotTimestamps.length; i++) {
+      allShotGaps.push((shotTimestamps[i] - shotTimestamps[i - 1]) / 1000);
+    }
+  }
+  shotTimestamps = [];
+
   if (ducksHit + ducksMissed >= ducksPerRound) {
     if (ducksHit === ducksPerRound) {
       score += 5000;
@@ -666,6 +677,7 @@ function mousePressed() {
   shotsFired++;
   shotsLeft--;
   playGunShotSound();
+  shotTimestamps.push(millis());
 
   if (!firstShotFired) {
     firstShotTimes.push((millis() - duckSpawnTime) / 1000);
@@ -726,6 +738,9 @@ function drawGameOver() {
   let avgSurvival  = survivalTimes.length > 0
     ? (survivalTimes.reduce((a, b) => a + b, 0) / survivalTimes.length).toFixed(2) + "s"
     : "--";
+  let avgShotGap = allShotGaps.length > 0
+    ? (allShotGaps.reduce((a, b) => a + b, 0) / allShotGaps.length).toFixed(2) + "s"
+    : "--";
 
   fill(255);
   textAlign(CENTER, CENTER);
@@ -744,16 +759,18 @@ function drawGameOver() {
 
   let labelX = 280;
   let valueX = 620;
-  let startY = 122;
-  let rowH   = 34;
+  let startY = 118;
+  let rowH   = 30;
 
   let labels = [
     "Final Score", "Ducks Hit", "Ducks Missed", "Total Shots Used",
-    "Accuracy", "Shots Per Kill", "Avg Time to First Shot", "Avg Duck Survival Time"
+    "Accuracy", "Shots Per Kill", "Avg Time to First Shot", "Avg Duck Survival Time",
+    "Avg Time Between Shots"
   ];
   let values = [
     nf(score, 6), ducksHit + " / " + ducksPerRound, ducksMissed, shotsFired,
-    accuracy + "%", shotsPerKill, avgFirstShot, avgSurvival
+    accuracy + "%", shotsPerKill, avgFirstShot, avgSurvival,
+    avgShotGap
   ];
 
   for (let i = 0; i < labels.length; i++) {
@@ -796,44 +813,29 @@ function logMetrics() {
     ? (firstShotTimes.reduce((a, b) => a + b, 0) / firstShotTimes.length).toFixed(2) : "N/A";
   let avgSurvival  = survivalTimes.length > 0
     ? (survivalTimes.reduce((a, b) => a + b, 0) / survivalTimes.length).toFixed(2) : "N/A";
+  let avgShotGap = allShotGaps.length > 0
+    ? (allShotGaps.reduce((a, b) => a + b, 0) / allShotGaps.length).toFixed(2) : "N/A";
 
   playNum++;
   allRounds.push({
     play: playNum, score, ducksHit, ducksMissed, shotsFired,
-    accuracy, shotsPerKill, avgFirstShot, avgSurvival,
-    firstShotArr: [...firstShotTimes],
-    survivalArr:  [...survivalTimes]
+    accuracy, shotsPerKill, avgFirstShot, avgSurvival, avgShotGap
   });
 }
 
 function downloadCSV() {
   if (allRounds.length === 0) return;
 
-  let firstShotHeaders = [];
-  let survivalHeaders  = [];
-  for (let i = 1; i <= ducksPerRound; i++) {
-    firstShotHeaders.push("First Shot Time Duck " + i + " (s)");
-    survivalHeaders.push("Survival Length Duck " + i + " (s)");
-  }
-
   let lines = [[
     "Round", "Score", "Ducks Hit", "Ducks Missed",
     "Total Shots", "Accuracy %", "Shots Per Kill",
-    "Avg First Shot (s)", "Avg Survival (s)",
-    ...firstShotHeaders, ...survivalHeaders
+    "Avg First Shot (s)", "Avg Survival (s)", "Avg Time Between Shots (s)"
   ].join(",")];
 
   for (let r of allRounds) {
-    let firstShotCols = [];
-    let survivalCols  = [];
-    for (let i = 0; i < ducksPerRound; i++) {
-      firstShotCols.push(r.firstShotArr[i] !== undefined ? r.firstShotArr[i].toFixed(3) : "");
-      survivalCols.push(r.survivalArr[i]   !== undefined ? r.survivalArr[i].toFixed(3)  : "");
-    }
     lines.push([
       r.play, r.score, r.ducksHit, r.ducksMissed, r.shotsFired,
-      r.accuracy, r.shotsPerKill, r.avgFirstShot, r.avgSurvival,
-      ...firstShotCols, ...survivalCols
+      r.accuracy, r.shotsPerKill, r.avgFirstShot, r.avgSurvival, r.avgShotGap
     ].join(","));
   }
 
