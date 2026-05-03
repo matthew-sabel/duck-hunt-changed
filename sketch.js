@@ -914,8 +914,8 @@ function logMetrics() {
     shotsPerKill: shotsPerKill,
     avgFirstShot: avgFirstShot,
     avgSurvival:  avgSurvival,
-    firstShotRaw: firstShotTimes.join(';'),
-    survivalRaw:  survivalTimes.join(';')
+    firstShotArr: [...firstShotTimes],
+    survivalArr:  [...survivalTimes]
   });
 
   console.log("=== DUCK HUNT — ROUND " + playNum + " RESULTS ===");
@@ -943,16 +943,33 @@ function downloadCSV() {
 
   let lines = [];
 
+  // build per-duck column headers (Duck 1 through Duck 10)
+  let firstShotHeaders = [];
+  let survivalHeaders  = [];
+  for (let i = 1; i <= ducksPerRound; i++) {
+    firstShotHeaders.push("First Shot Time Duck " + i + " (s)");
+    survivalHeaders.push("Survival Length Duck " + i + " (s)");
+  }
+
   // header row
   lines.push([
     "Round", "Score", "Ducks Hit", "Ducks Missed",
     "Total Shots", "Accuracy %", "Shots Per Kill",
     "Avg First Shot (s)", "Avg Survival (s)",
-    "First Shot Times (s)", "Survival Times (s)"
+    ...firstShotHeaders,
+    ...survivalHeaders
   ].join(","));
 
   // one row per round
   for (let r of allRounds) {
+    // pad each per-duck array to 10 entries so columns always line up
+    let firstShotCols = [];
+    let survivalCols  = [];
+    for (let i = 0; i < ducksPerRound; i++) {
+      firstShotCols.push(r.firstShotArr[i] !== undefined ? r.firstShotArr[i] : "");
+      survivalCols.push(r.survivalArr[i]   !== undefined ? r.survivalArr[i]  : "");
+    }
+
     lines.push([
       r.play,
       r.score,
@@ -963,8 +980,8 @@ function downloadCSV() {
       r.shotsPerKill,
       r.avgFirstShot,
       r.avgSurvival,
-      '"' + r.firstShotRaw + '"',   // quoted so semicolons don't break the CSV
-      '"' + r.survivalRaw  + '"'
+      ...firstShotCols,
+      ...survivalCols
     ].join(","));
   }
 
