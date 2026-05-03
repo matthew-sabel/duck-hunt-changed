@@ -1,5 +1,8 @@
 let duck;
 let dog;
+let bullets = [];
+
+const BULLET_DECAY = 0.92;
 
 let score = 0;
 
@@ -90,8 +93,10 @@ function draw() {
 
   } else if (gameState === "playing") {
     updateDuck();
+    updateBullets();
     drawGrass();
     drawDuck();
+    drawBullets();
     drawHUD();
     drawHitMessage();
     drawMissMessage();
@@ -333,6 +338,8 @@ function drawDog() {
 }
 
 function resetDuck() {
+  bullets = [];
+
   if (ducksHit + ducksMissed >= ducksPerRound) {
     if (ducksHit === ducksPerRound) {
       score += 5000;
@@ -377,6 +384,7 @@ function resetDuck() {
       facing: dir > 0 ? -1 : 1,
       isFast: isFast,
       noiseT: random(1000),
+      hits: 0,
       survivalRecorded: false
     };
   } else {
@@ -398,6 +406,7 @@ function resetDuck() {
       facing: direction,
       isFast: isFast,
       noiseT: random(1000),
+      hits: 0,
       survivalRecorded: false
     };
   }
@@ -672,27 +681,89 @@ function mousePressed() {
     firstShotFired = true;
   }
 
-  if (hitDuck(mouseX, mouseY)) {
-    score += 500;
-    ducksHit++;
-    hitMessageTimer  = 20;
-    missMessageTimer = 0;
+  bullets.push({
+    x:           mouseX - 65,
+    y:           mouseY + 18,
+    targetX:     mouseX,
+    vx:          4,
+    vy:          -1.4,
+    bulletScale: 3.2
+  });
+}
 
-    if (!duck.survivalRecorded) {
-      survivalTimes.push((millis() - duckSpawnTime) / 1000);
-      duck.survivalRecorded = true;
+function updateBullets() {
+  for (let i = bullets.length - 1; i >= 0; i--) {
+    let b = bullets[i];
+    b.x           += b.vx;
+    b.y           += b.vy;
+    b.bulletScale *= BULLET_DECAY;
+
+    if (b.x < b.targetX) continue;
+
+    if (duck.state === "flying" && hitDuck(b.x, b.y)) {
+      duck.hits++;
+      hitMessageTimer  = 20;
+      missMessageTimer = 0;
+      bullets.splice(i, 1);
+
+      if (duck.hits >= 2) {
+        score += 500;
+        ducksHit++;
+
+        if (!duck.survivalRecorded) {
+          survivalTimes.push((millis() - duckSpawnTime) / 1000);
+          duck.survivalRecorded = true;
+        }
+
+        duck.state     = "falling";
+        duck.fallSpeed = 1.5;
+        duck.speedX    = 0;
+        duck.speedY    = 0;
+        bullets = [];
+      }
+      break;
     }
 
-    duck.state     = "falling";
-    duck.fallSpeed = 1.5;
-    duck.speedX    = 0;
-    duck.speedY    = 0;
+    if (b.bulletScale < 0.1 || b.x > width + 20 || b.y < -20) {
+      bullets.splice(i, 1);
 
-  } else {
-    missMessageTimer = 20;
-    hitMessageTimer  = 0;
+      if (bullets.length === 0 && shotsLeft === 0 && duck.state === "flying") {
+        if (!duck.survivalRecorded) {
+          survivalTimes.push((millis() - duckSpawnTime) / 1000);
+          duck.survivalRecorded = true;
+        }
+        missMessageTimer = 20;
+        hitMessageTimer  = 0;
+        ducksMissed++;
+        duck.state       = "escaped";
+        duck.escapeTimer = 68;
+      }
+    }
+  }
+}
 
-    // shots exhausted — duck keeps flying until DUCK_TIMEOUT_MS fires in updateDuck
+function drawBullets() {
+  for (let b of bullets) {
+    push();
+    translate(round(b.x), round(b.y));
+    rotate(atan2(b.vy, b.vx) + HALF_PI);
+    scale(b.bulletScale);
+    noStroke();
+
+    fill(255, 235, 80);
+    rect(-1, -9, 2, 2);
+    fill(245, 200, 50);
+    rect(-2, -7, 4, 3);
+    fill(220, 165, 30);
+    rect(-3, -4, 6, 3);
+    fill(195, 115, 15);
+    rect(-3, -1, 6, 7);
+    fill(225, 150, 35);
+    rect(-1, 0, 2, 5);
+    fill(110, 55, 8);
+    rect(-3, 6, 6, 3);
+
+    pop();
   }
 }
 
@@ -837,7 +908,7 @@ function downloadCSV() {
     ].join(","));
   }
 
-  saveStrings(lines, "duck_hunt_main", "csv");
+  saveStrings(lines, "duck_hunt_combined_2_hits_slow_bullet", "csv");
 }
 
 function getAudioCtx() {
