@@ -377,6 +377,7 @@ function resetDuck() {
       facing: dir > 0 ? -1 : 1,
       isFast: isFast,
       noiseT: random(1000),
+      hits: 0,
       survivalRecorded: false
     };
   } else {
@@ -398,6 +399,7 @@ function resetDuck() {
       facing: direction,
       isFast: isFast,
       noiseT: random(1000),
+      hits: 0,
       survivalRecorded: false
     };
   }
@@ -673,20 +675,24 @@ function mousePressed() {
   }
 
   if (hitDuck(mouseX, mouseY)) {
-    score += 500;
-    ducksHit++;
+    duck.hits++;
     hitMessageTimer  = 20;
     missMessageTimer = 0;
 
-    if (!duck.survivalRecorded) {
-      survivalTimes.push((millis() - duckSpawnTime) / 1000);
-      duck.survivalRecorded = true;
-    }
+    if (duck.hits >= 2) {
+      score += 500;
+      ducksHit++;
 
-    duck.state     = "falling";
-    duck.fallSpeed = 1.5;
-    duck.speedX    = 0;
-    duck.speedY    = 0;
+      if (!duck.survivalRecorded) {
+        survivalTimes.push((millis() - duckSpawnTime) / 1000);
+        duck.survivalRecorded = true;
+      }
+
+      duck.state     = "falling";
+      duck.fallSpeed = 1.5;
+      duck.speedX    = 0;
+      duck.speedY    = 0;
+    }
 
   } else {
     missMessageTimer = 20;
@@ -837,7 +843,7 @@ function downloadCSV() {
     ].join(","));
   }
 
-  saveStrings(lines, "duck_hunt_main", "csv");
+  saveStrings(lines, "duck_hunt_2_hits", "csv");
 }
 
 function getAudioCtx() {
