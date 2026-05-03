@@ -766,17 +766,17 @@ function drawGameOver() {
   let labelX = 280;
   let valueX = 620;
   let startY = 118;
-  let rowH   = 27;
+  let rowH   = 30;
 
   let labels = [
     "Final Score", "Ducks Hit", "Ducks Missed", "Total Shots Used",
     "Kill Rate", "Hit Rate", "Shots Per Kill", "Avg Time to First Shot",
-    "Avg Duck Survival Time", "Avg Time Between Shots", "Frustration Clicks"
+    "Avg Duck Survival Time", "Avg Time Between Shots"
   ];
   let values = [
     nf(score, 6), ducksHit + " / " + ducksPerRound, ducksMissed, shotsFired,
     killRate + "%", hitRate + "%", shotsPerKill, avgFirstShot,
-    avgSurvival, avgShotGap, frustrationClicks
+    avgSurvival, avgShotGap
   ];
 
   for (let i = 0; i < labels.length; i++) {
