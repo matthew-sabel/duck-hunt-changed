@@ -1,3 +1,5 @@
+// Duck Hunt — Slow Bullet Version
+
 let duck;
 let dog;
 let bullets = [];
