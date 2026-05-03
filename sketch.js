@@ -41,7 +41,8 @@ let firstShotTimes = [];
 let survivalTimes  = [];
 let shotTimestamps = [];
 let allShotGaps    = [];
-let totalHits      = 0;
+let totalHits         = 0;
+let frustrationClicks = 0;
 let allRounds = [];
 let playNum   = 0;
 
@@ -160,7 +161,8 @@ function setupIntro() {
   survivalTimes  = [];
   shotTimestamps = [];
   allShotGaps    = [];
-  totalHits      = 0;
+  totalHits         = 0;
+  frustrationClicks = 0;
 
   dog = {
     x: -80,
@@ -683,7 +685,7 @@ function mousePressed() {
 
   if (gameState !== "playing") return;
   if (duck.state !== "flying") return;
-  if (shotsLeft <= 0) return;
+  if (shotsLeft <= 0) { frustrationClicks++; return; }
 
   shotsFired++;
   shotsLeft--;
@@ -831,17 +833,17 @@ function drawGameOver() {
   let labelX = 280;
   let valueX = 620;
   let startY = 118;
-  let rowH   = 30;
+  let rowH   = 27;
 
   let labels = [
     "Final Score", "Ducks Hit", "Ducks Missed", "Total Shots Used",
     "Kill Rate", "Hit Rate", "Shots Per Kill", "Avg Time to First Shot",
-    "Avg Duck Survival Time", "Avg Time Between Shots"
+    "Avg Duck Survival Time", "Avg Time Between Shots", "Frustration Clicks"
   ];
   let values = [
     nf(score, 6), ducksHit + " / " + ducksPerRound, ducksMissed, shotsFired,
     killRate + "%", hitRate + "%", shotsPerKill, avgFirstShot,
-    avgSurvival, avgShotGap
+    avgSurvival, avgShotGap, frustrationClicks
   ];
 
   for (let i = 0; i < labels.length; i++) {
@@ -891,7 +893,8 @@ function logMetrics() {
   playNum++;
   allRounds.push({
     play: playNum, score, ducksHit, ducksMissed, shotsFired, totalHits,
-    killRate, hitRate, shotsPerKill, avgFirstShot, avgSurvival, avgShotGap
+    killRate, hitRate, shotsPerKill, avgFirstShot, avgSurvival, avgShotGap,
+    frustrationClicks
   });
 }
 
@@ -901,13 +904,14 @@ function downloadCSV() {
   let lines = [[
     "Round", "Score", "Ducks Hit", "Ducks Missed", "Total Shots", "Total Hits",
     "Kill Rate %", "Hit Rate %", "Shots Per Kill",
-    "Avg First Shot (s)", "Avg Survival (s)", "Avg Time Between Shots (s)"
+    "Avg First Shot (s)", "Avg Survival (s)", "Avg Time Between Shots (s)", "Frustration Clicks"
   ].join(",")];
 
   for (let r of allRounds) {
     lines.push([
       r.play, r.score, r.ducksHit, r.ducksMissed, r.shotsFired, r.totalHits,
-      r.killRate, r.hitRate, r.shotsPerKill, r.avgFirstShot, r.avgSurvival, r.avgShotGap
+      r.killRate, r.hitRate, r.shotsPerKill, r.avgFirstShot, r.avgSurvival, r.avgShotGap,
+      r.frustrationClicks
     ].join(","));
   }
 
