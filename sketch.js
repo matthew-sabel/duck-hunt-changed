@@ -729,7 +729,8 @@ function updateBullets() {
         missMessageTimer = 20;
         hitMessageTimer  = 0;
         ducksMissed++;
-        resetDuck();
+        duck.state       = "escaped";
+        duck.escapeTimer = 68;
       }
     }
   }
