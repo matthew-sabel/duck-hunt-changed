@@ -985,7 +985,7 @@ function downloadCSV() {
     ].join(","));
   }
 
-  saveStrings(lines, "duck_hunt_data", "csv");
+  saveStrings(lines, "duck_hunt_slow_bullet_version", "csv");
 }
 
 
