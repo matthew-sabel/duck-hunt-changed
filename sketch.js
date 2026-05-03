@@ -36,6 +36,7 @@ let firstShotTimes = [];
 let survivalTimes  = [];
 let shotTimestamps = [];
 let allShotGaps    = [];
+let totalHits      = 0;
 let allRounds = [];
 let playNum   = 0;
 
@@ -152,6 +153,7 @@ function setupIntro() {
   survivalTimes  = [];
   shotTimestamps = [];
   allShotGaps    = [];
+  totalHits      = 0;
 
   dog = {
     x: -80,
@@ -685,6 +687,7 @@ function mousePressed() {
   }
 
   if (hitDuck(mouseX, mouseY)) {
+    totalHits++;
     score += 500;
     ducksHit++;
     hitMessageTimer  = 20;
@@ -730,7 +733,8 @@ function drawGameOver() {
   fill(0, 190);
   rect(0, 0, width, height);
 
-  let accuracy     = shotsFired > 0 ? round((ducksHit / shotsFired) * 100) : 0;
+  let killRate     = shotsFired > 0 ? round((ducksHit  / shotsFired) * 100) : 0;
+  let hitRate      = shotsFired > 0 ? round((totalHits / shotsFired) * 100) : 0;
   let shotsPerKill = ducksHit > 0 ? (shotsFired / ducksHit).toFixed(2) : "--";
   let avgFirstShot = firstShotTimes.length > 0
     ? (firstShotTimes.reduce((a, b) => a + b, 0) / firstShotTimes.length).toFixed(2) + "s"
@@ -764,13 +768,13 @@ function drawGameOver() {
 
   let labels = [
     "Final Score", "Ducks Hit", "Ducks Missed", "Total Shots Used",
-    "Accuracy", "Shots Per Kill", "Avg Time to First Shot", "Avg Duck Survival Time",
-    "Avg Time Between Shots"
+    "Kill Rate", "Hit Rate", "Shots Per Kill", "Avg Time to First Shot",
+    "Avg Duck Survival Time", "Avg Time Between Shots"
   ];
   let values = [
     nf(score, 6), ducksHit + " / " + ducksPerRound, ducksMissed, shotsFired,
-    accuracy + "%", shotsPerKill, avgFirstShot, avgSurvival,
-    avgShotGap
+    killRate + "%", hitRate + "%", shotsPerKill, avgFirstShot,
+    avgSurvival, avgShotGap
   ];
 
   for (let i = 0; i < labels.length; i++) {
@@ -807,7 +811,8 @@ function isOverCSVButton() {
 }
 
 function logMetrics() {
-  let accuracy     = shotsFired > 0 ? round((ducksHit / shotsFired) * 100) : 0;
+  let killRate     = shotsFired > 0 ? round((ducksHit  / shotsFired) * 100) : 0;
+  let hitRate      = shotsFired > 0 ? round((totalHits / shotsFired) * 100) : 0;
   let shotsPerKill = ducksHit > 0 ? (shotsFired / ducksHit).toFixed(2) : "N/A";
   let avgFirstShot = firstShotTimes.length > 0
     ? (firstShotTimes.reduce((a, b) => a + b, 0) / firstShotTimes.length).toFixed(2) : "N/A";
@@ -818,8 +823,8 @@ function logMetrics() {
 
   playNum++;
   allRounds.push({
-    play: playNum, score, ducksHit, ducksMissed, shotsFired,
-    accuracy, shotsPerKill, avgFirstShot, avgSurvival, avgShotGap
+    play: playNum, score, ducksHit, ducksMissed, shotsFired, totalHits,
+    killRate, hitRate, shotsPerKill, avgFirstShot, avgSurvival, avgShotGap
   });
 }
 
@@ -827,15 +832,16 @@ function downloadCSV() {
   if (allRounds.length === 0) return;
 
   let lines = [[
-    "Round", "Score", "Ducks Hit", "Ducks Missed",
-    "Total Shots", "Accuracy %", "Shots Per Kill",
+    "Round", "Score", "Ducks Hit", "Ducks Missed", "Total Shots", "Total Hits",
+    "Kill Rate %", "Hit Rate %", "Shots Per Kill",
     "Avg First Shot (s)", "Avg Survival (s)", "Avg Time Between Shots (s)"
   ].join(",")];
 
   for (let r of allRounds) {
     lines.push([
-      r.play, r.score, r.ducksHit, r.ducksMissed, r.shotsFired,
-      r.accuracy, r.shotsPerKill, r.avgFirstShot, r.avgSurvival, r.avgShotGap
+      r.play, r.score, r.ducksHit, r.ducksMissed, r.shotsFired, r.totalHits,
+      r.killRate, r.hitRate, r.shotsPerKill,
+      r.avgFirstShot, r.avgSurvival, r.avgShotGap
     ].join(","));
   }
 
