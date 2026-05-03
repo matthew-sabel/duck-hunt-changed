@@ -966,8 +966,8 @@ function downloadCSV() {
     let firstShotCols = [];
     let survivalCols  = [];
     for (let i = 0; i < ducksPerRound; i++) {
-      firstShotCols.push(r.firstShotArr[i] !== undefined ? r.firstShotArr[i] : "");
-      survivalCols.push(r.survivalArr[i]   !== undefined ? r.survivalArr[i]  : "");
+      firstShotCols.push(r.firstShotArr[i] !== undefined ? r.firstShotArr[i].toFixed(3) : "");
+      survivalCols.push(r.survivalArr[i]   !== undefined ? r.survivalArr[i].toFixed(3)  : "");
     }
 
     lines.push([
