@@ -96,8 +96,14 @@ function draw() {
   }
 
   // crosshair follows the mouse during all states except the title screen
+  // hide it and show a pointer cursor when hovering the Download CSV button
   if (gameState !== "intro") {
-    drawCrosshair();
+    if (gameState === "gameOver" && isOverCSVButton()) {
+      cursor(HAND);
+    } else {
+      cursor('default');
+      drawCrosshair();
+    }
   }
 
   // tick down timers every frame
@@ -748,6 +754,10 @@ function drawGun() {
   rect(8, 21, 9, 2);
 
   pop();
+}
+
+function isOverCSVButton() {
+  return mouseX > 340 && mouseX < 560 && mouseY > 426 && mouseY < 462;
 }
 
 function drawCrosshair() {
