@@ -359,7 +359,7 @@ function resetDuck() {
     // Random launch angle: 8°–82° from horizontal — excludes near-vertical (85–90°) and near-horizontal (0–5°)
     let angleDeg = random(8, 82);
     let angleRad = angleDeg * PI / 180;
-    let speed    = random(isFast ? 10.6 : 8.7, isFast ? 13.6 : 11.8);
+    let speed    = random(isFast ? 9.5 : 7.8, isFast ? 12.2 : 10.6);
 
     duck = {
       x: spawnX,
@@ -387,7 +387,7 @@ function resetDuck() {
       y: random(80, height - 210),
       w: 46,
       h: 26,
-      speedX: random(isFast ? 9.9 : 8.0, isFast ? 12.4 : 10.6) * direction,
+      speedX: random(isFast ? 8.9 : 7.2, isFast ? 11.2 : 9.5) * direction,
       speedY: random(-2, 2),
       wingOffset: 0,
       launchFrames: 0,
